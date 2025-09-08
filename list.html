@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="ShoppingListCheckOff">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping List Check Off</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        .lists-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: space-between;
+        }
+        
+        .list {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .list h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            text-align: center;
+        }
+        
+        .to-buy {
+            border-top: 4px solid #3498db;
+        }
+        
+        .already-bought {
+            border-top: 4px solid #27ae60;
+        }
+        
+        .item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-info {
+            flex-grow: 1;
+        }
+        
+        .item-name {
+            font-weight: 600;
+        }
+        
+        .item-quantity {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+            white-space: nowrap;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 20px;
+            color: #7f8c8d;
+            font-style: italic;
+            background: white;
+            border-radius: 4px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .lists-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Shopping List Check Off</h1>
+        
+        <div class="lists-container">
+            <!-- To Buy List -->
+            <div class="list to-buy" ng-controller="ToBuyController as toBuy">
+                <h2>To Buy</h2>
+                
+                <div ng-if="toBuy.items.length === 0" class="empty-message">
+                    Everything is bought!
+                </div>
+                
+                <div ng-repeat="item in toBuy.items" class="item">
+                    <div class="item-info">
+                        <div class="item-quantity">Buy {{ item.quantity }}</div>
+                        <div class="item-name">{{ item.name }}</div>
+                    </div>
+                    <button ng-click="toBuy.buyItem($index)">Bought</button>
+                </div>
+            </div>
+            
+            <!-- Already Bought List -->
+            <div class="list already-bought" ng-controller="AlreadyBoughtController as bought">
+                <h2>Already Bought</h2>
+                
+                <div ng-if="bought.items.length === 0" class="empty-message">
+                    Nothing bought yet
+                </div>
+                
+                <div ng-repeat="item in bought.items" class="item">
+                    <div class="item-info">
+                        <div class="item-quantity">Bought {{ item.quantity }}</div>
+                        <div class="item-name">{{ item.name }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>AngularJS Module 2 Assignment - Shopping List Check Off</p>
+    </footer>
+
+    <script>
+        (function() {
+            'use strict';
+            
+            // Define the Angular module
+            angular.module('ShoppingListCheckOff', [])
+            
+            // Define the service
+            .service('ShoppingListCheckOffService', ShoppingListCheckOffService)
+            
+            // Define the controllers with $inject for minification protection
+            .controller('ToBuyController', ToBuyController)
+            .controller('AlreadyBoughtController', AlreadyBoughtController);
+            
+            // Service implementation
+            function ShoppingListCheckOffService() {
+                var service = this;
+                
+                // Pre-populated list of items to buy
+                service.toBuyItems = [
+                    { name: "cookies", quantity: 10 },
+                    { name: "apples", quantity: 5 },
+                    { name: "bananas", quantity: 7 },
+                    { name: "milk bottles", quantity: 2 },
+                    { name: "bread loaves", quantity: 3 },
+                    { name: "eggs", quantity: 12 },
+                    { name: "cheese packages", quantity: 2 }
+                ];
+                
+                // Empty list for bought items
+                service.boughtItems = [];
+                
+                // Move item from toBuy to bought
+                service.buyItem = function(itemIndex) {
+                    var item = service.toBuyItems[itemIndex];
+                    service.toBuyItems.splice(itemIndex, 1);
+                    service.boughtItems.push(item);
+                };
+                
+                // Get toBuy items
+                service.getToBuyItems = function() {
+                    return service.toBuyItems;
+                };
+                
+                // Get bought items
+                service.getBoughtItems = function() {
+                    return service.boughtItems;
+                };
+            }
+            
+            // ToBuyController implementation
+            ToBuyController.$inject = ['ShoppingListCheckOffService'];
+            function ToBuyController(ShoppingListCheckOffService) {
+                var toBuy = this;
+                
+                toBuy.items = ShoppingListCheckOffService.getToBuyItems();
+                
+                toBuy.buyItem = function(itemIndex) {
+                    ShoppingListCheckOffService.buyItem(itemIndex);
+                };
+            }
+            
+            // AlreadyBoughtController implementation
+            AlreadyBoughtController.$inject = ['ShoppingListCheckOffService'];
+            function AlreadyBoughtController(ShoppingListCheckOffService) {
+                var bought = this;
+                
+                bought.items = ShoppingListCheckOffService.getBoughtItems();
+            }
+        })();
+    </script>
+</body>
+</html>
